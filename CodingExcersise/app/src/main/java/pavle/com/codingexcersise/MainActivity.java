@@ -18,10 +18,12 @@
  */
 package pavle.com.codingexcersise;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -61,6 +63,14 @@ public class MainActivity extends AppCompatActivity {
 
         ListView lvItems = (ListView) findViewById(R.id.lvMain);
         lvItems.setAdapter(adapter);
+
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(MainActivity.this,ViewActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 }
