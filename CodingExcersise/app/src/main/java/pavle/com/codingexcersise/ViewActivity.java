@@ -18,8 +18,10 @@
  */
 package pavle.com.codingexcersise;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class ViewActivity extends AppCompatActivity {
 
@@ -27,5 +29,10 @@ public class ViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view);
+
+        int position = getIntent().getIntExtra("Position",0);
+        DataObjectModel clickedItem = ((MyApplication)getApplicationContext())
+                .getDataObjects().get(position);
+        Toast.makeText(this,clickedItem.toString(),Toast.LENGTH_SHORT).show();
     }
 }

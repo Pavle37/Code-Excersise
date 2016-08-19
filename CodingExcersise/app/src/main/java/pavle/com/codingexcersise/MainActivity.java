@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, ViewActivity.class);
+                intent.putExtra("Position",i);
                 startActivity(intent);
             }
         });
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Perform click at start so that user doesn't have to
         mRefresh.performClick();
     }
 

@@ -51,4 +51,8 @@ public class DataObjectModel {
     public void setDescription(String description) {
         mDescription = description;
     }
+
+    public String toString(){
+        return getTitle()+" "+getDescription()+" imageUrl:"+getImgUrl();
+    }
 }
