@@ -18,6 +18,8 @@
  */
 package pavle.com.codingexcersise;
 
+import android.graphics.Bitmap;
+
 /**
  * Object representation of loaded JSON data
  */
@@ -26,6 +28,7 @@ public class DataObjectModel {
     private String mTitle;
     private String mDescription;
     private String mImgUrl;
+    private Bitmap mBitmap = null;
 
 
     public String getTitle() {
@@ -54,5 +57,13 @@ public class DataObjectModel {
 
     public String toString(){
         return getTitle()+" "+getDescription()+" imageUrl:"+getImgUrl();
+    }
+
+    public Bitmap getBitmap() {
+        return mBitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        mBitmap = bitmap;
     }
 }

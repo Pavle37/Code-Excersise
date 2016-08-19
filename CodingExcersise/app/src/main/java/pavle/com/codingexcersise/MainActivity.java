@@ -102,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Perform click at start so that user doesn't have to
-        mRefresh.performClick();
+        if(getList().size() == 0) {
+            mRefresh.performClick();
+        }
     }
 
     private void downloadJson() {
