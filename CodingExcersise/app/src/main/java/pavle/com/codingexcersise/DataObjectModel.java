@@ -21,7 +21,7 @@ package pavle.com.codingexcersise;
 /**
  * Object representation of loaded JSON data
  */
-public class DataObject {
+public class DataObjectModel {
 
     private String mTitle;
     private String mDescription;
