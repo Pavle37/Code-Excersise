@@ -63,7 +63,6 @@ public class ViewActivity extends AppCompatActivity {
         else{// Load image from the Internet
             new ImageLoader().execute(mClickedItem.getImgUrl());
         }
-
     }
 
     /** Loads Image from URL and saves it into mClickedItem **/

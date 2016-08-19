@@ -66,4 +66,5 @@ public class DataObjectModel {
     public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
     }
+
 }

@@ -101,16 +101,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Perform click at start so that user doesn't have to
+        // If no data was downloaded, download JSON
         if(getList().size() == 0) {
             mRefresh.performClick();
+        }
+        else{
+            // If the content is loaded, no need to download
+            // Just hide the layout that displays the refresh
+            hideInternetLayout();
         }
     }
 
     private void downloadJson() {
         TextView tvNoInternet = (TextView) findViewById(R.id.tvNoInternet);
-        // If no data was downloaded, download JSON
-        if(getList().size() == 0){
             // Check Internet connection, if there is none, display message
             if(hasInternet()) {
                 tvNoInternet.setVisibility(View.GONE);
@@ -120,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
                 mRefresh.clearAnimation();
                 tvNoInternet.setVisibility(View.VISIBLE);
             }
-        }
     }
 
     private void initializeAdapter() {
