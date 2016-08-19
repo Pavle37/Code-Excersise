@@ -18,14 +18,22 @@
  */
 package pavle.com.codingexcersise;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.app.Application;
 
-public class ViewActivity extends AppCompatActivity {
+import java.util.List;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view);
+/**
+ * Application subclass used to story temporary data across Activities
+ */
+public class MyApplication extends Application {
+
+    private List<DataObjectModel> mDataObjects = null;
+
+    public List<DataObjectModel> getDataObjects() {
+        return mDataObjects;
+    }
+
+    public void setDataObjects(List<DataObjectModel> dataObjects) {
+        mDataObjects = dataObjects;
     }
 }

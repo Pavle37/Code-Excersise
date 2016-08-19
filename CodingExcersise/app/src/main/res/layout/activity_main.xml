@@ -15,4 +15,25 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
     </ListView>
+
+    <RelativeLayout
+        android:id="@+id/rlNoInternet"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/ivRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:src="@drawable/refresh"
+            android:layout_centerHorizontal="true"
+        />
+        <TextView
+            android:layout_below="@id/ivRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="No Internet connection"
+        />
+    </RelativeLayout>
 </RelativeLayout>

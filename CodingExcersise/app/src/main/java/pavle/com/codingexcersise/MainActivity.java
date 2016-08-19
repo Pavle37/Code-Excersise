@@ -19,15 +19,21 @@
 package pavle.com.codingexcersise;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -46,7 +52,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<DataObjectModel> mDataObjects = new ArrayList<>();
     private ArrayAdapter mAdapter;
 
     private static final String URL = "https://raw.githubusercontent.com/danieloskarsson/mobile-coding-exercise/master/items.json";
@@ -56,25 +61,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final List<DataObjectModel> list = new ArrayList<>();
-
-        //adds 30 elements to list for test purposes
-        for(int i = 0; i <= 30; i++){
-            DataObjectModel tmp = new DataObjectModel();
-            tmp.setTitle(getResources().getString(R.string.app_name));
-            tmp.setDescription(getResources().getString(R.string.lorem_ipsum));
-            list.add(tmp);
+        // If we just launched the application, initialize the ArrayList
+        if ( getList() == null) {
+            setList(new ArrayList<DataObjectModel>());
         }
-
-        mAdapter = new ArrayAdapter(this, R.layout.list_item_main, R.id.text1, mDataObjects) {
+        // Link the adapter with that list so when elements are added, we can refresh
+        mAdapter = new ArrayAdapter(this, R.layout.list_item_main, R.id.text1, getList()) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text1 = (TextView) view.findViewById(R.id.text1);
                 TextView text2 = (TextView) view.findViewById(R.id.text2);
 
-                text1.setText(mDataObjects.get(position).getTitle());
-                text2.setText(mDataObjects.get(position).getDescription());
+                text1.setText(getList().get(position).getTitle());
+                text2.setText(getList().get(position).getDescription());
                 return view;
             }
         };
@@ -85,12 +85,49 @@ public class MainActivity extends AppCompatActivity {
         lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this,ViewActivity.class);
+                Intent intent = new Intent(MainActivity.this, ViewActivity.class);
                 startActivity(intent);
             }
         });
 
-        new JsonTask().execute(URL);
+        // If no data was downloaded, download JSON
+        if(getList().size() == 0){
+            // Check Internet connection, if there is none, display message
+            if(hasInternet()) {
+                hideNoInternet();
+                new JsonTask().execute(URL);
+            }
+            else{
+                showNoInternet();
+            }
+        }
+    }
+
+    private void hideNoInternet() {
+        RelativeLayout rlNoInternet = (RelativeLayout) findViewById(R.id.rlNoInternet);
+        rlNoInternet.setVisibility(View.GONE);
+    }
+
+    private void showNoInternet() {
+        RelativeLayout rlNoInternet = (RelativeLayout) findViewById(R.id.rlNoInternet);
+        rlNoInternet.setVisibility(View.VISIBLE);
+    }
+
+    private boolean hasInternet() {
+        // get Connectivity Manager object to check connection
+        ConnectivityManager conMan = (ConnectivityManager) getSystemService(getBaseContext().CONNECTIVITY_SERVICE);
+
+        NetworkInfo info = conMan.getActiveNetworkInfo();
+        if(info == null) return false; // If no network is available, return false
+        return info.isConnected(); // Return status of the connection
+    }
+
+    public List<DataObjectModel> getList() {
+        return ((MyApplication)getApplicationContext()).getDataObjects();
+    }
+
+    public void setList(List<DataObjectModel> list){
+        ((MyApplication)getApplicationContext()).setDataObjects(list);
     }
 
     public class JsonTask extends AsyncTask<String, String, String>{
@@ -103,10 +140,12 @@ public class MainActivity extends AppCompatActivity {
 
                 String data = readDataFromUrl(url);
 
-                JSONArray jObjects = new JSONArray(data);
-                for(int i = 0; i < jObjects.length(); i++ ){
-                    JSONObject tmp = jObjects.getJSONObject(i);
-                    addObjectToList(tmp);
+                if(data != null) { // If some data was read, parse it
+                    JSONArray jObjects = new JSONArray(data);
+                    for (int i = 0; i < jObjects.length(); i++) {
+                        JSONObject tmp = jObjects.getJSONObject(i);
+                        addObjectToList(tmp);
+                    }
                 }
             } catch (MalformedURLException e) {
                 Log.d("JsonTask:", "Problem with URL");
@@ -123,23 +162,11 @@ public class MainActivity extends AppCompatActivity {
                 object.setTitle(tmp.getString("title"));
                 object.setDescription(tmp.getString("description"));
                 object.setImgUrl(tmp.getString("image"));
-                mDataObjects.add(object);
-                refreshListVew();
+                getList().add(object);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-
-        //On UI Thread, notify the adapter about data changes
-        private void refreshListVew() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-
         private String readDataFromUrl(URL url) {
             HttpURLConnection connection = null;
             BufferedReader reader = null;
@@ -173,6 +200,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             return null; //If there was an error, return null
-    }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }
