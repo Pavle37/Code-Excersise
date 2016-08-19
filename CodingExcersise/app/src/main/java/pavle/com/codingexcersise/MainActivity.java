@@ -23,6 +23,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -53,6 +54,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter mAdapter;
+    private ImageView mRefresh;
 
     private static final String URL = "https://raw.githubusercontent.com/danieloskarsson/mobile-coding-exercise/master/items.json";
 
@@ -65,6 +67,59 @@ public class MainActivity extends AppCompatActivity {
         if ( getList() == null) {
             setList(new ArrayList<DataObjectModel>());
         }
+
+        initializeAdapter();
+
+        ListView lvItems = (ListView) findViewById(R.id.lvMain);
+        lvItems.setAdapter(mAdapter);
+
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(MainActivity.this, ViewActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mRefresh = (ImageView) findViewById(R.id.ivRefresh);
+        mRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Animation rotation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.refresh_anim);
+                rotation.setRepeatCount(Animation.INFINITE);
+                mRefresh.startAnimation(rotation);
+
+                // Run animation for 300ms so that user can feel the input
+                Handler h = new Handler();
+                h.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        downloadJson();
+                    }
+                },300);
+            }
+        });
+
+        mRefresh.performClick();
+    }
+
+    private void downloadJson() {
+        TextView tvNoInternet = (TextView) findViewById(R.id.tvNoInternet);
+        // If no data was downloaded, download JSON
+        if(getList().size() == 0){
+            // Check Internet connection, if there is none, display message
+            if(hasInternet()) {
+                tvNoInternet.setVisibility(View.GONE);
+                new JsonTask().execute(URL);
+            }
+            else{
+                mRefresh.clearAnimation();
+                tvNoInternet.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private void initializeAdapter() {
         // Link the adapter with that list so when elements are added, we can refresh
         mAdapter = new ArrayAdapter(this, R.layout.list_item_main, R.id.text1, getList()) {
             @Override
@@ -78,39 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         };
-
-        ListView lvItems = (ListView) findViewById(R.id.lvMain);
-        lvItems.setAdapter(mAdapter);
-
-        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this, ViewActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // If no data was downloaded, download JSON
-        if(getList().size() == 0){
-            // Check Internet connection, if there is none, display message
-            if(hasInternet()) {
-                hideNoInternet();
-                new JsonTask().execute(URL);
-            }
-            else{
-                showNoInternet();
-            }
-        }
     }
 
-    private void hideNoInternet() {
-        RelativeLayout rlNoInternet = (RelativeLayout) findViewById(R.id.rlNoInternet);
+    private void hideInternetLayout() {
+        mRefresh.clearAnimation();
+        RelativeLayout rlNoInternet = (RelativeLayout) findViewById(R.id.rlInternet);
         rlNoInternet.setVisibility(View.GONE);
-    }
-
-    private void showNoInternet() {
-        RelativeLayout rlNoInternet = (RelativeLayout) findViewById(R.id.rlNoInternet);
-        rlNoInternet.setVisibility(View.VISIBLE);
     }
 
     private boolean hasInternet() {
@@ -206,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             mAdapter.notifyDataSetChanged();
+            hideInternetLayout();
         }
     }
 }

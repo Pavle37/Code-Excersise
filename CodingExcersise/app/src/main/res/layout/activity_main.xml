@@ -17,8 +17,7 @@
     </ListView>
 
     <RelativeLayout
-        android:id="@+id/rlNoInternet"
-        android:visibility="gone"
+        android:id="@+id/rlInternet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageView
@@ -29,10 +28,12 @@
             android:layout_centerHorizontal="true"
         />
         <TextView
+            android:id="@+id/tvNoInternet"
             android:layout_below="@id/ivRefresh"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:visibility="gone"
             android:text="No Internet connection"
         />
     </RelativeLayout>
