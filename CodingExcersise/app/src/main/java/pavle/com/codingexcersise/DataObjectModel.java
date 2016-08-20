@@ -29,6 +29,7 @@ public class DataObjectModel {
     private String mDescription;
     private String mImgUrl;
     private Bitmap mBitmap = null;
+    private int mId = 0;
 
 
     public String getTitle() {
@@ -63,8 +64,13 @@ public class DataObjectModel {
         return mBitmap;
     }
 
-    public void setBitmap(Bitmap bitmap) {
-        mBitmap = bitmap;
+    public void setBitmap(Bitmap bitmap) {mBitmap = bitmap;}
+
+    public void setId(int id) {
+        mId = id;
     }
 
+    public int getId() {
+        return mId;
+    }
 }

@@ -43,9 +43,9 @@ public class ViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view);
 
         // Get the position passed via Intent and load that Item
-        int position = getIntent().getIntExtra("Position",0);
-        mClickedItem = ((MyApplication)getApplicationContext())
-                .getDataObjects().get(position);
+        int id = getIntent().getIntExtra("Id",0);
+        DataObjectSqliteHelper db = new DataObjectSqliteHelper(this);
+        mClickedItem = db.getObject(id);
 
         // Set the title and description from data
         TextView tvTitle = (TextView) findViewById(R.id.tvTitle);
@@ -90,6 +90,8 @@ public class ViewActivity extends AppCompatActivity {
             if(bitmap != null){
                 mPicture.setImageBitmap(bitmap);
                 mClickedItem.setBitmap(bitmap);
+                DataObjectSqliteHelper db = new DataObjectSqliteHelper(ViewActivity.this);
+                db.updateObject(mClickedItem);
             }
             // There has been a problem in loading, show toast
             else Toast.makeText(getApplicationContext(),"Internet connection needed to load image",

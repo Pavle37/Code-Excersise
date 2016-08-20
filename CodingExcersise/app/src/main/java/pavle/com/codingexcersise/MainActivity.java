@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter mAdapter;
     private ImageView mRefresh;
+    private List<DataObjectModel> mList;
 
     private static final String URL = "https://raw.githubusercontent.com/danieloskarsson/mobile-coding-exercise/master/items.json";
 
@@ -62,11 +63,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // If we just launched the application, initialize the ArrayList
-        if ( getList() == null) {
-            setList(new ArrayList<DataObjectModel>());
-        }
 
         initializeAdapter();
 
@@ -77,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, ViewActivity.class);
-                intent.putExtra("Position",i);
+                intent.putExtra("Id",getList().get(i).getId());
                 startActivity(intent);
             }
         });
@@ -102,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // If no data was downloaded, download JSON
-        if(getList().size() == 0) {
+        if(mList.size() == 0) {
             mRefresh.performClick();
         }
         else{
@@ -127,15 +123,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeAdapter() {
         // Link the adapter with that list so when elements are added, we can refresh
-        mAdapter = new ArrayAdapter(this, R.layout.list_item_main, R.id.text1, getList()) {
+        mList = getList();
+        mAdapter = new ArrayAdapter(this, R.layout.list_item_main, R.id.text1,mList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text1 = (TextView) view.findViewById(R.id.text1);
                 TextView text2 = (TextView) view.findViewById(R.id.text2);
 
-                text1.setText(getList().get(position).getTitle());
-                text2.setText(getList().get(position).getDescription());
+                text1.setText(mList.get(position).getTitle());
+                text2.setText(mList.get(position).getDescription());
                 return view;
             }
         };
@@ -157,11 +154,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public List<DataObjectModel> getList() {
-        return ((MyApplication)getApplicationContext()).getDataObjects();
-    }
-
-    public void setList(List<DataObjectModel> list){
-        ((MyApplication)getApplicationContext()).setDataObjects(list);
+        DataObjectSqliteHelper db = new DataObjectSqliteHelper(this);
+        return db.getObjectList();
     }
 
     public class JsonTask extends AsyncTask<String, String, String>{
@@ -192,11 +186,13 @@ public class MainActivity extends AppCompatActivity {
         //Reads data from JSONObject and creates new DataObjectModel with same info
         private void addObjectToList(JSONObject tmp) {
             DataObjectModel object = new DataObjectModel();
+            DataObjectSqliteHelper db = new DataObjectSqliteHelper(MainActivity.this);
             try {
                 object.setTitle(tmp.getString("title"));
                 object.setDescription(tmp.getString("description"));
                 object.setImgUrl(tmp.getString("image"));
-                getList().add(object);
+                mList.add(object);
+                db.addObject(object);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
